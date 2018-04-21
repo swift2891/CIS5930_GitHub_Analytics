@@ -9,5 +9,13 @@
 	<classpathentry kind="lib" path="C:/Users/Vignesh/Desktop/Data Mining in SE/Assignment/4/commons-math3-3.6.1-bin/commons-math3-3.6.1/commons-math3-3.6.1-tests.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Vignesh/Desktop/Data Mining in SE/Assignment/4/commons-math3-3.6.1-bin/commons-math3-3.6.1/commons-math3-3.6.1-test-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Vignesh/Desktop/Data Mining in SE/Assignment/4/commons-math3-3.6.1-bin/commons-math3-3.6.1/commons-math3-3.6.1-tools.jar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/mysql-connector-java-5.1.46/mysql-connector-java-5.1.46.jar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/commons-math3-3.6.1-bin.tar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/commons-math3-3.6.1/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/commons-math3-3.6.1/commons-math3-3.6.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/commons-math3-3.6.1/commons-math3-3.6.1-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/commons-math3-3.6.1/commons-math3-3.6.1-tests.jar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/commons-math3-3.6.1/commons-math3-3.6.1-test-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/haris/Downloads/commons-math3-3.6.1/commons-math3-3.6.1-tools.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
