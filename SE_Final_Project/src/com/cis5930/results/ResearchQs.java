@@ -667,12 +667,225 @@ public class ResearchQs {
 		
 	}
 	
+	public void watcherConfidence() {
+		int commit_conf=0, issue_conf=0, pull_conf=0, comm_commit_conf=0, comm_issue_conf=0, comm_pull_conf=0;
+		try {
+			ps = con.prepareStatement("select count(*) as commit_conf from watchers inner join\r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, min(created_at) as created_at, contr_type  FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id\r\n" + 
+					") as t4\r\n" + 
+					"on watchers.user_id = t4.author_id and\r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"watchers.repo_id = t4.project_id  and\r\n" + 
+					"t4.contr_type=\"commits\";",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			commit_conf = rs.getInt("commit_conf");
+			
+			ps = con.prepareStatement("select count(*) as issue_conf from watchers inner join\r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, min(created_at) as created_at, contr_type  FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id\r\n" + 
+					") as t4\r\n" + 
+					"on watchers.user_id = t4.author_id and\r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"watchers.repo_id = t4.project_id  and\r\n" + 
+					"t4.contr_type=\"issues\";",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			issue_conf = rs.getInt("issue_conf");
+			
+			
+			ps = con.prepareStatement("select count(*) as pull_conf from watchers inner join\r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, min(created_at) as created_at, contr_type  FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id\r\n" + 
+					") as t4\r\n" + 
+					"on watchers.user_id = t4.author_id and\r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"watchers.repo_id = t4.project_id  and\r\n" + 
+					"t4.contr_type=\"pull_requests\";",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			pull_conf = rs.getInt("pull_conf");
+			
+			ps = con.prepareStatement("select count(*) as comm_commit_conf from watchers inner join\r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, min(created_at) as created_at, contr_type  FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id\r\n" + 
+					") as t4\r\n" + 
+					"on watchers.user_id = t4.author_id and\r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"watchers.repo_id = t4.project_id  and\r\n" + 
+					"t4.contr_type=\"commit_comments\";",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			comm_commit_conf = rs.getInt("comm_commit_conf");
+			
+			ps = con.prepareStatement("select count(*) as comm_issue_conf from watchers inner join\r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, min(created_at) as created_at, contr_type  FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id\r\n" + 
+					") as t4\r\n" + 
+					"on watchers.user_id = t4.author_id and\r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"watchers.repo_id = t4.project_id  and\r\n" + 
+					"t4.contr_type=\"issue_comments\";",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			comm_issue_conf = rs.getInt("comm_issue_conf");
+			
+			ps = con.prepareStatement("select count(*) as comm_pull_conf from watchers inner join\r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, min(created_at) as created_at, contr_type  FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id\r\n" + 
+					") as t4\r\n" + 
+					"on watchers.user_id = t4.author_id and\r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"watchers.repo_id = t4.project_id  and\r\n" + 
+					"t4.contr_type=\"pull_request_comments\";",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			comm_pull_conf = rs.getInt("comm_pull_conf");
+			
+			System.out.println("\n"+"Confidences:"+"\n"+commit_conf);
+			System.out.println(issue_conf);
+			System.out.println(pull_conf);
+			System.out.println(comm_commit_conf);
+			System.out.println(comm_issue_conf);
+			System.out.println(comm_pull_conf);
+			
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+	}
 	
 	
+//	public void otherContributorConf() {
+//		int commit_conf=0, issue_conf=0, pull_conf=0, comm_commit_conf=0, comm_issue_conf=0, comm_pull_conf=0;
+//		try {
+//			ps = con.prepareStatement("select count(*) as commit_conf from \r\n" + 
+//					"(\r\n" + 
+//					"select t4.project_id, t4.author_id, t4.contr_type, t4.created_at,count(*) from \r\n" + 
+//					"(\r\n" + 
+//					"select repo_id as project_id, author_id, created_at, contr_type from watch_contr\r\n" + 
+//					"union all\r\n" + 
+//					"select project_id,author_id, min(created_at) as created_at, contr_type from prj_contr_ts_typ2\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					") as t4\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					"having count(*)=1\r\n" + 
+//					") as t6 \r\n" + 
+//					"where t6.contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_conf = rs.getInt("commit_conf");
+//			
+//			//***************
+//			ps = con.prepareStatement("select count(*) as issue_conf from \r\n" + 
+//					"(\r\n" + 
+//					"select t4.project_id, t4.author_id, t4.contr_type, t4.created_at,count(*) from \r\n" + 
+//					"(\r\n" + 
+//					"select repo_id as project_id, author_id, created_at, contr_type from watch_contr\r\n" + 
+//					"union all\r\n" + 
+//					"select project_id,author_id, min(created_at) as created_at, contr_type from prj_contr_ts_typ2\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					") as t4\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					"having count(*)=1\r\n" + 
+//					") as t6 \r\n" + 
+//					"where t6.contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_conf = rs.getInt("issue_conf");
+//			
+//			
+//			ps = con.prepareStatement("select count(*) as pull_conf from \r\n" + 
+//					"(\r\n" + 
+//					"select t4.project_id, t4.author_id, t4.contr_type, t4.created_at,count(*) from \r\n" + 
+//					"(\r\n" + 
+//					"select repo_id as project_id, author_id, created_at, contr_type from watch_contr\r\n" + 
+//					"union all\r\n" + 
+//					"select project_id,author_id, min(created_at) as created_at, contr_type from prj_contr_ts_typ2\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					") as t4\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					"having count(*)=1\r\n" + 
+//					") as t6 \r\n" + 
+//					"where t6.contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_conf = rs.getInt("pull_conf");
+//			
+//			ps = con.prepareStatement("select count(*) as comm_commit_conf from \r\n" + 
+//					"(\r\n" + 
+//					"select t4.project_id, t4.author_id, t4.contr_type, t4.created_at,count(*) from \r\n" + 
+//					"(\r\n" + 
+//					"select repo_id as project_id, author_id, created_at, contr_type from watch_contr\r\n" + 
+//					"union all\r\n" + 
+//					"select project_id,author_id, min(created_at) as created_at, contr_type from prj_contr_ts_typ2\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					") as t4\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					"having count(*)=1\r\n" + 
+//					") as t6 \r\n" + 
+//					"where t6.contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_conf = rs.getInt("comm_commit_conf");
+//			
+//			ps = con.prepareStatement("select count(*) as comm_issue_conf from \r\n" + 
+//					"(\r\n" + 
+//					"select t4.project_id, t4.author_id, t4.contr_type, t4.created_at,count(*) from \r\n" + 
+//					"(\r\n" + 
+//					"select repo_id as project_id, author_id, created_at, contr_type from watch_contr\r\n" + 
+//					"union all\r\n" + 
+//					"select project_id,author_id, min(created_at) as created_at, contr_type from prj_contr_ts_typ2\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					") as t4\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					"having count(*)=1\r\n" + 
+//					") as t6 \r\n" + 
+//					"where t6.contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_conf = rs.getInt("comm_issue_conf");
+//			
+//			ps = con.prepareStatement("select count(*) as comm_pull_conf from \r\n" + 
+//					"(\r\n" + 
+//					"select t4.project_id, t4.author_id, t4.contr_type, t4.created_at,count(*) from \r\n" + 
+//					"(\r\n" + 
+//					"select repo_id as project_id, author_id, created_at, contr_type from watch_contr\r\n" + 
+//					"union all\r\n" + 
+//					"select project_id,author_id, min(created_at) as created_at, contr_type from prj_contr_ts_typ2\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					") as t4\r\n" + 
+//					"group by project_id, author_id\r\n" + 
+//					"having count(*)=1\r\n" + 
+//					") as t6 \r\n" + 
+//					"where t6.contr_type = \"pull_request_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_pull_conf = rs.getInt("comm_pull_conf");
+//			
+//			System.out.println("\n"+"Other Contr Confidences:"+"\n"+commit_conf);
+//			System.out.println(issue_conf);
+//			System.out.println(pull_conf);
+//			System.out.println(comm_commit_conf);
+//			System.out.println(comm_issue_conf);
+//			System.out.println(comm_pull_conf);
+//			
+//			
+//			
+//		}catch(SQLException e1) {
+//			e1.printStackTrace();
+//		}
+//	}
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		con=Database.openConnection();
-		ResearchQs rq1 = new ResearchQs();
+		ResearchQs rq = new ResearchQs();
 		
 //  Task 4 - Pearson Correlation
 //		rq1.pearsonCorrelation();
@@ -687,15 +900,15 @@ public class ResearchQs {
    If the author contributed to multiple projects, the least timestamp of author contribution 
    timestamp will be recorded for each project. 
 */
-		rq1.getAllContributions();
+//		rq.getAllContributions();
 		
 // Get RQ1 Stats
-		rq1.rq1Stats();
+//		rq.rq1Stats();
 				
 		
 //  RQ2 Tasks
-
-		
+		rq.watcherConfidence();
+//		rq.otherContributorConf();
 		
 //  RQ3 Tasks
 		
