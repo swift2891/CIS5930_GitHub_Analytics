@@ -44,6 +44,19 @@ public class Database {
 	   return rs;
    }
    
+   public static Integer updateQuery(PreparedStatement ps) {
+	   
+//	   System.out.println("Updating DB...");
+	   Integer retVal=0;
+	   try {
+		retVal = ps.executeUpdate();	
+	} catch (SQLException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+	   return retVal;
+   }
+   
    public static void houseKeeping(PreparedStatement ps) {
 	   System.out.println("HouseKeeping in progress...");
 	  //finally block used to close resources

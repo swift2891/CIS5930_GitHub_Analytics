@@ -2,14 +2,19 @@ package com.cis5930.results;
 
 import com.cis5930.database.Database;
 import java.sql.*;
+import java.util.*;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-
 import org.omg.PortableServer.ServantActivator;
 
 public class ResearchQs {
 	private static ResultSet rs;
 	static Connection con = null;
 	static PreparedStatement ps=null;
+	static private Hashtable<Integer,Set<String>> projectWatchers = new Hashtable<Integer,Set<String>>();
+	static private Hashtable<Integer,Set<String>> projectContributors = new Hashtable<Integer,Set<String>>();
+	static Set<Integer> keys;
+	static Set<String> allContrib, allWatch;
+	
 	
 	//Pearson Corr [watchers Vs Forks/Issues/Commits]
 	void pearsonCorrelation() {
@@ -142,13 +147,523 @@ public class ResearchQs {
 		System.out.print("\n"+"Pearson Correlation: "+res);
 	}
 	
-//	
-	void watchToContr() {
-		
+	public static void totContributors(){
+		//Computer Total Contributors
+		keys = projectContributors.keySet();
+		allContrib = new HashSet<String>(projectContributors.get(1));
+		int k=0;
+        for(Integer key: keys){
+            if(k==0)
+            	allContrib = new HashSet<String>(projectContributors.get(key)); 
+            else
+            	allContrib.addAll(projectContributors.get(key));
+            k+=1;
+        }
+        System.out.println("Total Contributors = "+allContrib.size());	
 	}
 	
+	public static void totWatchers() {
+		//Computer Total Watchers
+        keys = projectWatchers.keySet();
+        allWatch = new HashSet<String>(projectWatchers.get(1));
+		int k=0;
+        for(Integer key: keys){
+//            System.out.println("Value of "+key+" is: "+projectWatchers.get(key));
+            if(k==0)
+            	allWatch = new HashSet<String>(projectWatchers.get(key)); 
+            else
+            	allWatch.addAll(projectWatchers.get(key));
+            k+=1;
+        }
+        System.out.println("Total Watchers = "+allWatch.size());
+	}
+	
+	
+	//Get each Project's Watchers and Contributors:
+	void getAllProjects() {
+		int p_id=0,i=0;
+		String contribs="";
+		List contributorList;
+		Set<String> contributorSet,temp;
+		//Get Watchers
+		try {
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("select watchers.repo_id,group_concat(watchers.user_id) as user_id\r\n" + 
+					"from watchers\r\n" + 
+					"group by watchers.repo_id \r\n" + 
+					"order by watchers.repo_id asc",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		try {			
+			while(rs.next()){
+		      p_id = rs.getInt("repo_id");
+		      contribs = rs.getString("user_id");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList); 		      
+		      projectWatchers.put(p_id, contributorSet);
+//		      if(i==0)
+//	    	  	System.out.println("ID: "+p_id+"  Val: "+contributorSet);
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Watchers = "+projectWatchers.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//Get Contributors
+		//Type1 - Commits
+		try {	
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("SELECT project_id,group_concat(distinct(author_id)) as author \r\n" + 
+					"FROM github.commits inner join \r\n" + 
+					"(\r\n" + 
+					"SELECT projects.id FROM projects inner join  \r\n" + 
+					"(SELECT distinct(repo_id) FROM watchers) as t4 \r\n" + 
+					"on projects.forked_from = t4.repo_id or projects.id = t4.repo_id\r\n" + 
+					") as t1\r\n" + 
+					"on commits.project_id = t1.id\r\n" + 
+					"group by project_id limit 10000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			i=0;
+			while(rs.next()){
+		      p_id = rs.getInt("project_id");
+		      contribs = rs.getString("author");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList); 		      
+		      projectContributors.put(p_id, contributorSet);
+//		      if(i==0)
+//		    	  System.out.println("ID: "+p_id+"  Val: "+projectContributors.get(p_id));
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Contributors_1 = "+projectContributors.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	
+		//Type2 - Pull Requests
+		try {
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("SELECT head_repo_id as project_id,group_concat(distinct(user_id)) as author \r\n" + 
+					"FROM pull_requests inner join projects_needed\r\n" + 
+					"on head_repo_id = projects_needed.id\r\n" + 
+					"group by head_repo_id limit 10000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			i=0;
+			while(rs.next()){
+		      p_id = rs.getInt("project_id");
+		      contribs = rs.getString("author");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList); 	
+		      if(projectContributors.containsKey(p_id))
+		      {
+		    	  temp = projectContributors.get(p_id);
+		    	  temp.addAll(contributorSet);
+		    	  projectContributors.put(p_id, temp);
+		      }
+		      else {
+		    	  projectContributors.put(p_id, contributorSet);
+		      }
+//		      if(i==0)
+//		    	  System.out.println("ID: "+p_id+"  Val: "+projectContributors.get(p_id));
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Contributors_2 = "+projectContributors.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//Type3 - Issues
+		try {
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("SELECT repo_id as project_id, group_concat(distinct(reporter_id)) as user_id \r\n" + 
+					"FROM issues inner join projects_needed\r\n" + 
+					"on repo_id = projects_needed.id\r\n" + 
+					"where isnull(reporter_id)=0\r\n" + 
+					"group by repo_id limit 10000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			i=0;
+			while(rs.next()){
+		      p_id = rs.getInt("project_id");
+		      contribs = rs.getString("user_id");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList); 		      
+		      if(projectContributors.containsKey(p_id))
+		      {
+		    	  temp = projectContributors.get(p_id);
+		    	  temp.addAll(contributorSet);
+		    	  projectContributors.put(p_id, temp);
+		      }
+		      else {
+		    	  projectContributors.put(p_id, contributorSet);
+		      }
+//		      if(i==0)
+//		    	  System.out.println("ID: "+p_id+"  Val: "+projectContributors.get(p_id));
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Contributors_3 = "+projectContributors.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		//Type4 - Commit Comments
+		try {
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("SELECT t2.project_id, group_concat(distinct(t2.user_id)) as user_id \r\n" + 
+					"FROM  (\r\n" + 
+					"select commit_comments.user_id, commits.project_id \r\n" + 
+					"from commit_comments inner join commits \r\n" + 
+					"on commit_comments.commit_id = commits.id\r\n" + 
+					") as t2\r\n" + 
+					"inner join projects_needed\r\n" + 
+					"on t2.project_id = projects_needed.id\r\n" + 
+					"where isnull(t2.user_id)=0\r\n" + 
+					"group by t2.project_id limit 10000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			i=0;
+			while(rs.next()){
+		      p_id = rs.getInt("project_id");
+		      contribs = rs.getString("user_id");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList);      
+		      if(projectContributors.containsKey(p_id))
+		      {
+		    	  temp = projectContributors.get(p_id);
+		    	  temp.addAll(contributorSet);
+		    	  projectContributors.put(p_id, temp);
+		      }
+		      else {
+		    	  projectContributors.put(p_id, contributorSet);
+		      }
+//		      if(i==0)
+//		    	  System.out.println("ID: "+p_id+"  Val: "+projectContributors.get(p_id));
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Contributors_4 = "+projectContributors.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//Type5 - Issue Comments
+		try {
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("SELECT t2.repo_id as project_id, group_concat(distinct(t2.user_id)) as user_id \r\n" + 
+					"FROM  (\r\n" + 
+					"select issue_comments.user_id, issues.repo_id\r\n" + 
+					"from issue_comments inner join issues \r\n" + 
+					"on issue_comments.issue_id = issues.id\r\n" + 
+					") as t2\r\n" + 
+					"inner join projects_needed\r\n" + 
+					"on t2.repo_id = projects_needed.id\r\n" + 
+					"where isnull(t2.user_id)=0\r\n" + 
+					"group by t2.repo_id limit 10000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			i=0;
+			while(rs.next()){
+		      p_id = rs.getInt("project_id");
+		      contribs = rs.getString("user_id");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList); 		      
+		      if(projectContributors.containsKey(p_id))
+		      {
+		    	  temp = projectContributors.get(p_id);
+		    	  temp.addAll(contributorSet);
+		    	  projectContributors.put(p_id, temp);
+		      }
+		      else {
+		    	  projectContributors.put(p_id, contributorSet);
+		      }
+//		      if(i==0)
+//		    	  System.out.println("ID: "+p_id+"  Val: "+projectContributors.get(p_id));
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Contributors_5 = "+projectContributors.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//Type6 - Pull_Request Comments
+		try {
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("SELECT t2.head_repo_id as project_id, group_concat(distinct(t2.user_id)) as user_id \r\n" + 
+					"FROM(\r\n" + 
+					"select pull_request_comments.user_id, pull_requests.head_repo_id\r\n" + 
+					"from pull_request_comments inner join pull_requests \r\n" + 
+					"on pull_request_comments.pull_request_id\r\n" + 
+					" = pull_requests.id\r\n" + 
+					") as t2\r\n" + 
+					"inner join projects_needed\r\n" + 
+					"on t2.head_repo_id = projects_needed.id\r\n" + 
+					"where isnull(t2.user_id)=0\r\n" + 
+					"group by t2.head_repo_id limit 10000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			i=0;
+			while(rs.next()){
+		      p_id = rs.getInt("project_id");
+		      contribs = rs.getString("user_id");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList); 		      
+		      if(projectContributors.containsKey(p_id))
+		      {
+		    	  temp = projectContributors.get(p_id);
+		    	  temp.addAll(contributorSet);
+		    	  projectContributors.put(p_id, temp);
+		      }
+		      else {
+		    	  projectContributors.put(p_id, contributorSet);
+		      }
+//		      if(i==0)
+//		    	  System.out.println("ID: "+p_id+"  Val: "+projectContributors.get(p_id));
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Contributors_6 = "+projectContributors.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//Type7 - Assigned Issues
+		try {
+			ps = con.prepareStatement("SET SESSION group_concat_max_len = 1000000",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			ps = con.prepareStatement("SELECT repo_id as project_id, group_concat(distinct(assignee_id)) as user_id \r\n" + 
+					"FROM issues inner join projects_needed\r\n" + 
+					"on issues.repo_id = projects_needed.id\r\n" + 
+					"where isnull(assignee_id)=0\r\n" + 
+					"group by repo_id\r\n" + 
+					"limit 99999999",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		try {
+			i=0;
+			while(rs.next()){
+		      p_id = rs.getInt("project_id");
+		      contribs = rs.getString("user_id");
+		      contributorList = Arrays.asList(contribs.split("\\s*,\\s*"));
+		      contributorSet = new HashSet<String>(contributorList); 		      
+		      if(projectContributors.containsKey(p_id))
+		      {
+		    	  temp = projectContributors.get(p_id);
+		    	  temp.addAll(contributorSet);
+		    	  projectContributors.put(p_id, temp);
+		      }
+		      else {
+		    	  projectContributors.put(p_id, contributorSet);
+		      }
+//		      if(i==0)
+//		    	  System.out.println("ID: "+p_id+"  Val: "+projectContributors.get(p_id));
+		      i+=1;
+  		    }
+			System.out.println("#Projects_Contributors_7 = "+projectContributors.size());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		totContributors();
+		totWatchers();
+        
+        Set<String> intersection = new HashSet<String>(allWatch);
+        intersection.retainAll(allContrib);
+        System.out.println("#Watchers who  become Contributors = "+intersection.size());
+	}
 //	
-	void watchPop() {
+
+	//Get Project - Author - (least)Date - Contribution Type
+	public void getAllContributions()
+	{
+		Integer qryOutcome=0; 
+		
+		//SQL Queries
+		try {
+			//Truncate prj_contr_ts_typ
+			ps = con.prepareStatement("truncate prj_contr_ts_typ");	
+			qryOutcome = Database.updateQuery(ps);
+	
+			//Truncate prj_contr_ts_typ2
+			ps = con.prepareStatement("truncate prj_contr_ts_typ2");	
+			qryOutcome = Database.updateQuery(ps);
+			
+			//Commits
+			ps = con.prepareStatement("insert into prj_contr_ts_typ\r\n" + 
+					"\r\n" + 
+					"select project_id, author_id, min(created_at), \"commits\" as contr_type from commits\r\n" + 
+					"inner join projects_needed\r\n" + 
+					"on commits.project_id = projects_needed.id\r\n" + 
+					"group by project_id, author_id");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("#Rows Inserted = "+ qryOutcome);
+			
+			//Pull Requests
+			ps = con.prepareStatement("insert into prj_contr_ts_typ\r\n" + 
+					"\r\n" + 
+					"select t4.project_id, actor_id, min(created_at), \"pull_requests\" from pull_request_history \r\n" + 
+					"inner join \r\n" + 
+					"\r\n" + 
+					"(select pull_requests.id, projects_needed.id as project_id from pull_requests inner join projects_needed\r\n" + 
+					"on pull_requests.base_repo_id = projects_needed.id) as t4\r\n" + 
+					"\r\n" + 
+					"on pull_request_history.pull_request_id = t4.id \r\n" + 
+					"where action=\"opened\"\r\n" + 
+					"group by t4.project_id, actor_id");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("#Rows Inserted = "+ qryOutcome);
+			
+			//Issues
+			ps = con.prepareStatement("insert into prj_contr_ts_typ\r\n" + 
+					"\r\n" + 
+					"SELECT repo_id, reporter_id, min(created_at), \"issues\" FROM issues inner join projects_needed\r\n" + 
+					"on issues.repo_id = projects_needed.id\r\n" + 
+					"where isnull(reporter_id)=0\r\n" + 
+					"group by repo_id, reporter_id\r\n" + 
+					"");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("#Rows Inserted = "+ qryOutcome);
+			
+			//commit comments
+			ps = con.prepareStatement("insert into prj_contr_ts_typ\r\n" + 
+					"\r\n" + 
+					"select t4.project_id, user_id, min(created_at), \"commit_comments\" from commit_comments \r\n" + 
+					"inner join \r\n" + 
+					"\r\n" + 
+					"(select commits.id, commits.project_id from commits inner join projects_needed\r\n" + 
+					"on commits.project_id = projects_needed.id) as t4\r\n" + 
+					"\r\n" + 
+					"on commit_comments.commit_id = t4.id \r\n" + 
+					"group by t4.project_id, user_id");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("#Rows Inserted = "+ qryOutcome);
+			
+			//issue comments
+			ps = con.prepareStatement("insert into prj_contr_ts_typ\r\n" + 
+					"\r\n" + 
+					"select t4.repo_id,user_id, min(created_at), \"issue_comments\" from issue_comments \r\n" + 
+					"inner join \r\n" + 
+					"\r\n" + 
+					"(select issues.id, issues.repo_id from issues inner join projects_needed\r\n" + 
+					"on issues.repo_id = projects_needed.id) as t4\r\n" + 
+					"\r\n" + 
+					"on issue_comments.issue_id = t4.id \r\n" + 
+					"group by t4.repo_id,user_id");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("#Rows Inserted = "+ qryOutcome);
+			
+			//pull request  comments
+			ps = con.prepareStatement("insert into prj_contr_ts_typ\r\n" + 
+					"\r\n" + 
+					"select t4.base_repo_id,user_id, min(created_at),\"pull_request_comments\" from pull_request_comments \r\n" + 
+					"inner join \r\n" + 
+					"\r\n" + 
+					"(select pull_requests.id, pull_requests.base_repo_id from pull_requests inner join projects_needed\r\n" + 
+					"on pull_requests.base_repo_id = projects_needed.id) as t4\r\n" + 
+					"\r\n" + 
+					"on pull_request_comments.pull_request_id = t4.id \r\n" + 
+					"group by t4.base_repo_id,user_id");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("#Rows Inserted = "+ qryOutcome);
+			
+			//assignee
+			ps = con.prepareStatement("insert into prj_contr_ts_typ\r\n" + 
+					"\r\n" + 
+					"SELECT issues.repo_id, assignee_id, min(created_at), \"assignee\" FROM issues inner join projects_needed\r\n" + 
+					"on issues.repo_id = projects_needed.id\r\n" + 
+					"where isnull(assignee_id)=0\r\n" + 
+					"group by issues.repo_id, assignee_id");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("#Rows Inserted = "+ qryOutcome);
+			
+			//prj_contr_ts_typ2
+			ps = con.prepareStatement("insert into prj_contr_ts_typ2\r\n" + 
+					"\r\n" + 
+					"select prj_contr_ts_typ.project_id, prj_contr_ts_typ.author_id, prj_contr_ts_typ.created_at, prj_contr_ts_typ.contr_type, \r\n" + 
+					"projects.forked_from from prj_contr_ts_typ\r\n" + 
+					"inner join projects\r\n" + 
+					"on prj_contr_ts_typ.project_id = projects.id;");	
+			qryOutcome = Database.updateQuery(ps);
+			System.out.println("Final #Rows Inserted = "+ qryOutcome);
+			
+			
+			
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		
+	}
+		
+// RQ1 Stats	
+	void rq1Stats() {
+		int contr_count=0, watch_contr=0, watchers_count=0;
+		try {
+			//Get Contributors Count
+			ps = con.prepareStatement("SELECT count(distinct(author_id)) as contr_count FROM github.prj_contr_ts_typ2;",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			contr_count = rs.getInt("contr_count");
+		    System.out.println("\n"+"Total #Contributors = "+contr_count);
+		    
+		    //Watchers turned Contributors
+		    ps = con.prepareStatement("select count(*) as watch_contr from watchers inner join\r\n" + 
+		    		"(\r\n" + 
+		    		"SELECT project_id, author_id, min(created_at) as created_at FROM github.prj_contr_ts_typ2\r\n" + 
+		    		"group by project_id, author_id\r\n" + 
+		    		") as t4\r\n" + 
+		    		"on watchers.user_id = t4.author_id and\r\n" + 
+		    		"watchers.created_at < t4.created_at and \r\n" + 
+		    		"watchers.repo_id = t4.project_id",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			watch_contr = rs.getInt("watch_contr");
+		    System.out.println("\n"+"Total No. Of Watchers turned to Contributors = "+watch_contr);
+			
+		    //Get Watchers Count
+			ps = con.prepareStatement("SELECT count(distinct(user_id)) as watch_count FROM watchers",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			watchers_count = rs.getInt("watch_count");
+		    System.out.println("\n"+"Total #Contributors = "+watchers_count);
+		    
+		    //Get percentage
+		    System.out.println("% of Watchers turned to Contributors = "+ (float)watch_contr*100/(float)watchers_count+"%");
+		    System.out.println("% of Contributors Who are Watchers = "+ (float)watch_contr*100/(float)contr_count+"%");
+		    
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}		
 		
 	}
 	
@@ -159,24 +674,30 @@ public class ResearchQs {
 		con=Database.openConnection();
 		ResearchQs rq1 = new ResearchQs();
 		
-		//Task 4 - Pearson Correlation
-		rq1.pearsonCorrelation();
+//  Task 4 - Pearson Correlation
+//		rq1.pearsonCorrelation();
 
-		//RQ1 tasks
+//  RQ1 tasks
+		
+//  Old Method (without considering TimeStamp of Contributors)
+//		rq1.getAllProjects();
+		
+/* Construct a Table with Project/Author/TS/Contr_Type - prj_contr_ts_typ2, such that
+   It will have the least time stamp for an author for  a specific project.
+   If the author contributed to multiple projects, the least timestamp of author contribution 
+   timestamp will be recorded for each project. 
+*/
+		rq1.getAllContributions();
+		
+// Get RQ1 Stats
+		rq1.rq1Stats();
+				
+		
+//  RQ2 Tasks
 
-		//Ratio-Mean-Median of Watchers becoming Contributors:
-		rq1.watchToContr();
 		
-		//Ratio-Mean-Median of Contributors who are Watchers:
-		rq1.watchPop();
 		
-		//Harish - RQ1 c) Time duration between watcher to become contributor
-		//I am coding
-		
-		//RQ2 Tasks
-			
-		
-		//RQ3 Tasks
+//  RQ3 Tasks
 		
 		
 		
