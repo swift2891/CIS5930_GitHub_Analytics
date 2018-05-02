@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.*;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.omg.PortableServer.ServantActivator;
+import org.apache.commons.math3.stat.inference.ChiSquareTest;
 
 public class ResearchQs {
 	private static ResultSet rs;
@@ -667,7 +668,8 @@ public class ResearchQs {
 		
 	}
 	
-	public void watcherConfidence() {
+	public double[] watcherConfidence() {
+		double[] watcherConfArray = new double[6];
 		int commit_conf=0, issue_conf=0, pull_conf=0, comm_commit_conf=0, comm_issue_conf=0, comm_pull_conf=0;
 		try {
 			ps = con.prepareStatement("select count(*) as commit_conf from watchers inner join\r\n" + 
@@ -749,21 +751,41 @@ public class ResearchQs {
 			rs.next();
 			comm_pull_conf = rs.getInt("comm_pull_conf");
 			
-			System.out.println("\n"+"Confidences:"+"\n"+commit_conf);
-			System.out.println(issue_conf);
-			System.out.println(pull_conf);
-			System.out.println(comm_commit_conf);
-			System.out.println(comm_issue_conf);
-			System.out.println(comm_pull_conf);
+//			System.out.println("\n"+"Confidences:"+"\n"+commit_conf);
+//			System.out.println(issue_conf);
+//			System.out.println(pull_conf);
+//			System.out.println(comm_commit_conf);
+//			System.out.println(comm_issue_conf);
+//			System.out.println(comm_pull_conf);
+			
+			System.out.println("Watcher Confidence = "+(float)(commit_conf+issue_conf+pull_conf)*100/17244+"%");
+			System.out.println("Watchers: Commit Confidence = "+(float)(commit_conf)*100/17244+"%");
+			System.out.println("Watchers: Issues Confidence = "+(float)(issue_conf)*100/17244+"%");
+			System.out.println("Watchers: Pull_Requests Confidence = "+(float)(pull_conf)*100/17244+"%");
+			System.out.println("Watchers: Commit Comments Confidence = "+(float)(comm_commit_conf)*100/17244+"%");
+			System.out.println("Watchers: Issue Comments Confidence = "+(float)(comm_issue_conf)*100/17244+"%");
+			System.out.println("Watchers: Pull_Request Comments Confidence = "+(float)(comm_pull_conf)*100/17244+"%");
+			
+			watcherConfArray[0] = commit_conf;
+			watcherConfArray[1] = issue_conf;
+			watcherConfArray[2] = pull_conf;
+			watcherConfArray[3] = comm_commit_conf;
+			watcherConfArray[4] = comm_issue_conf;
+			watcherConfArray[5] = comm_pull_conf;
+			
+			return watcherConfArray;
 			
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
+		
+		return new double[0];
 	}
 	
 	
-	public void otherContributorConf() {
+	public long[] otherContributorConf() {
 		int commit_conf=0, issue_conf=0, pull_conf=0, comm_commit_conf=0, comm_issue_conf=0, comm_pull_conf=0;
+		long[] othersConfArray = new long[6];
 		try {
 			ps = con.prepareStatement("select count(*) as commit_conf from \r\n" + 
 					"(\r\n" + 
@@ -869,19 +891,49 @@ public class ResearchQs {
 			rs.next();
 			comm_pull_conf = rs.getInt("comm_pull_conf");
 			
-			System.out.println("\n"+"Other Contr Confidences:"+"\n"+commit_conf);
-			System.out.println(issue_conf);
-			System.out.println(pull_conf);
-			System.out.println(comm_commit_conf);
-			System.out.println(comm_issue_conf);
-			System.out.println(comm_pull_conf);
+//			System.out.println("\n"+"Other Contr Confidences:"+"\n"+commit_conf);
+//			System.out.println(issue_conf);
+//			System.out.println(pull_conf);
+//			System.out.println(comm_commit_conf);
+//			System.out.println(comm_issue_conf);
+//			System.out.println(comm_pull_conf);
 			
+			System.out.println("\n"+"Other Contributor Confidence = "+(float)(commit_conf+issue_conf+pull_conf)*100/62885+"%");
+			System.out.println("Others: Commit Confidence = "+(float)(commit_conf)*100/62885+"%");
+			System.out.println("Others: Issues Confidence = "+(float)(issue_conf)*100/62885+"%");
+			System.out.println("Others: Pull_Requests Confidence = "+(float)(pull_conf)*100/62885+"%");
+			System.out.println("Others: Commit Comments Confidence = "+(float)(comm_commit_conf)*100/62885+"%");
+			System.out.println("Others: Issue Comments Confidence = "+(float)(comm_issue_conf)*100/62885+"%");
+			System.out.println("Others: Pull_Request Comments Confidence = "+(float)(comm_pull_conf)*100/62885+"%");
 			
+			othersConfArray[0] = commit_conf;
+			othersConfArray[1] = issue_conf;
+			othersConfArray[2] = pull_conf;
+			othersConfArray[3] = comm_commit_conf;
+			othersConfArray[4] = comm_issue_conf;
+			othersConfArray[5] = comm_pull_conf;
+			
+			return othersConfArray;
 			
 		}catch(SQLException e1) {
 			e1.printStackTrace();
 		}
+		return new long[0];
 	}
+	
+	
+	public void confidenceCalc() {
+		
+		double[] series1; 
+		long[] series2;
+		double[] res;
+		
+ 		series1=this.watcherConfidence();
+		series2=this.otherContributorConf();
+//		ChiSquareTest chi = new ChiSquareTest();
+
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		con=Database.openConnection();
@@ -907,8 +959,8 @@ public class ResearchQs {
 				
 		
 //  RQ2 Tasks
-		rq.watcherConfidence();
-		rq.otherContributorConf();
+		rq.confidenceCalc();
+		
 		
 //  RQ3 Tasks
 		
