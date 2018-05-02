@@ -1,6 +1,8 @@
 package com.cis5930.results;
 
 import com.cis5930.database.Database;
+import com.mysql.jdbc.StreamingNotifiable;
+
 import java.sql.*;
 import java.util.*;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
@@ -904,7 +906,7 @@ public class ResearchQs {
 			System.out.println("Others: Pull_Requests Confidence = "+(float)(pull_conf)*100/62885+"%");
 			System.out.println("Others: Commit Comments Confidence = "+(float)(comm_commit_conf)*100/62885+"%");
 			System.out.println("Others: Issue Comments Confidence = "+(float)(comm_issue_conf)*100/62885+"%");
-			System.out.println("Others: Pull_Request Comments Confidence = "+(float)(comm_pull_conf)*100/62885+"%");
+			System.out.println("Others: Pull_Request Comments Confidence = "+(float)(comm_pull_conf)*100/62885+"%"+"\n");
 			
 			othersConfArray[0] = commit_conf;
 			othersConfArray[1] = issue_conf;
@@ -933,6 +935,978 @@ public class ResearchQs {
 //		ChiSquareTest chi = new ChiSquareTest();
 
 	}
+//	
+//	public void languageContribution(){
+//		try {
+//			int c_count=0, c_sharp_count=0, cpp_count=0, css_count=0, go_count=0, java_count=0, javascript_count=0, php_count=0, r_count=0, python_count=0, 
+//					scala_count=0, ruby_count=0, typescript_count=0; 
+//			
+//			//Get All Counts
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"C\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			c_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"C#\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			c_sharp_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"C++\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			cpp_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"CSS\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			css_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"Go\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			go_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"Java\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			java_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"JavaScript\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			javascript_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"PHP\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			php_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"Python\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			python_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"R\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			r_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"Ruby\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			ruby_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"Scala\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			scala_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("select count(*) as row_count from prj_contr_ts_typ_lan\r\n" + 
+//					"where lang = \"TypeScript\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			typescript_count = rs.getInt("row_count");
+//			
+//			int issue_count=0, commit_count=0, pull_request_count=0, comm_commit_count=0, comm_issue_count=0;
+//			//Get 5 Types RI / SC / PR / CC / CI
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("C: "+(float)issue_count*100/c_count+" "+(float)commit_count*100/c_count+" "+
+//			(float)pull_request_count*100/c_count+" "+(float)comm_commit_count*100/c_count+" "+(float)comm_issue_count*100/c_count );
+//			
+//			//C# -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C#\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C#\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C#\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C#\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C#\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("C#: "+(float)issue_count*100/c_sharp_count+" "+(float)commit_count*100/c_sharp_count+" "+
+//			(float)pull_request_count*100/c_sharp_count+" "+(float)comm_commit_count*100/c_sharp_count+" "+(float)comm_issue_count*100/c_sharp_count );
+//			
+//			
+//			//C++ -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C++\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C++\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C++\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C++\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"C++\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("C++: "+(float)issue_count*100/cpp_count+" "+(float)commit_count*100/cpp_count+" "+
+//			(float)pull_request_count*100/cpp_count+" "+(float)comm_commit_count*100/cpp_count+" "+(float)comm_issue_count*100/cpp_count );
+//			
+//			
+//			//CSS -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"CSS\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"CSS\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"CSS\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"CSS\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"CSS\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("CSS: "+(float)issue_count*100/css_count+" "+(float)commit_count*100/css_count+" "+
+//			(float)pull_request_count*100/css_count+" "+(float)comm_commit_count*100/css_count+" "+(float)comm_issue_count*100/css_count );
+//	
+//			
+//			//Go -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Go\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Go\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Go\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Go\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Go\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("Go: "+(float)issue_count*100/go_count+" "+(float)commit_count*100/go_count+" "+
+//			(float)pull_request_count*100/go_count+" "+(float)comm_commit_count*100/go_count+" "+(float)comm_issue_count*100/go_count );
+//			
+//			//Java -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Java\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Java\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Java\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Java\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Java\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("Java: "+(float)issue_count*100/java_count+" "+(float)commit_count*100/java_count+" "+
+//			(float)pull_request_count*100/java_count+" "+(float)comm_commit_count*100/java_count+" "+(float)comm_issue_count*100/java_count );
+//			
+//			
+//			//JavaScript -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"JavaScript\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"JavaScript\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"JavaScript\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"JavaScript\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"JavaScript\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("JavaScript: "+(float)issue_count*100/javascript_count+" "+(float)commit_count*100/javascript_count+" "+
+//			(float)pull_request_count*100/javascript_count+" "+(float)comm_commit_count*100/javascript_count+" "+(float)comm_issue_count*100/javascript_count );
+//			
+//			
+//			//PHP -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"PHP\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"PHP\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"PHP\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"PHP\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"PHP\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("PHP: "+(float)issue_count*100/php_count+" "+(float)commit_count*100/php_count+" "+
+//			(float)pull_request_count*100/php_count+" "+(float)comm_commit_count*100/php_count+" "+(float)comm_issue_count*100/php_count );
+//
+//			
+//			//Python -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Python\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Python\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Python\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Python\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Python\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("Python: "+(float)issue_count*100/python_count+" "+(float)commit_count*100/python_count+" "+
+//			(float)pull_request_count*100/python_count+" "+(float)comm_commit_count*100/python_count+" "+(float)comm_issue_count*100/python_count);
+//			
+//			
+//			//R -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"R\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"R\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"R\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"R\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"R\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("R: "+(float)issue_count*100/r_count+" "+(float)commit_count*100/r_count+" "+
+//			(float)pull_request_count*100/r_count+" "+(float)comm_commit_count*100/r_count+" "+(float)comm_issue_count*100/r_count);
+//			
+//			
+//			//Ruby -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Ruby\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Ruby\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Ruby\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Ruby\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Ruby\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("Ruby: "+(float)issue_count*100/ruby_count+" "+(float)commit_count*100/ruby_count+" "+
+//			(float)pull_request_count*100/ruby_count+" "+(float)comm_commit_count*100/ruby_count+" "+(float)comm_issue_count*100/ruby_count);
+//			
+//			
+//			//Scala -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Scala\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Scala\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Scala\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Scala\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"Scala\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("Scala: "+(float)issue_count*100/scala_count+" "+(float)commit_count*100/scala_count+" "+
+//			(float)pull_request_count*100/scala_count+" "+(float)comm_commit_count*100/scala_count+" "+(float)comm_issue_count*100/scala_count);
+//			
+//			
+//			//TypeScript -----------------------
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"TypeScript\" and \r\n" + 
+//					"contr_type = \"issues\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			issue_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"TypeScript\" and \r\n" + 
+//					"contr_type = \"commits\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"TypeScript\" and \r\n" + 
+//					"contr_type = \"pull_requests\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			pull_request_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"TypeScript\" and \r\n" + 
+//					"contr_type = \"commit_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_commit_count = rs.getInt("row_count");
+//			
+//			ps = con.prepareStatement("SELECT count(*) as row_count FROM prj_contr_ts_typ_lan \r\n" + 
+//					"where lang = \"TypeScript\" and \r\n" + 
+//					"contr_type = \"issue_comments\"",ResultSet.TYPE_SCROLL_INSENSITIVE);
+//			rs = Database.processQuery(ps);
+//			rs.next();
+//			comm_issue_count = rs.getInt("row_count");
+//				
+//			System.out.println("TypeScript: "+(float)issue_count*100/typescript_count+" "+(float)commit_count*100/typescript_count+" "+
+//			(float)pull_request_count*100/typescript_count+" "+(float)comm_commit_count*100/typescript_count+" "+(float)comm_issue_count*100/typescript_count+"\n");
+//			
+//		}catch(SQLException e1) {
+//			e1.printStackTrace();
+//		}
+//		
+//	}
+//	
+	
+	public void languageMTBF() {
+		try {
+			
+			int avg_time=0; 
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"C\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("C: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"C#\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("C#: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"C++\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("C++: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"CSS\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("CSS: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"Go\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("Go: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"Java\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("Java: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"JavaScript\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("JavaScript: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"PHP\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("PHP: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"Python\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("Python: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"R\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("R: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"Ruby\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("Ruby: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"Scala\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("Scala: "+avg_time);
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_time from\r\n" + 
+					"(\r\n" + 
+					"SELECT t4.author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type \r\n" + 
+					"FROM \r\n" + 
+					"(\r\n" + 
+					"SELECT project_id, author_id, created_at, contr_type FROM github.prj_contr_ts_typ_lan\r\n" + 
+					"where lang = \"TypeScript\"\r\n" + 
+					") as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			avg_time = rs.getInt("avg_time");
+			System.out.println("TypeScript: "+avg_time);
+			
+			
+		}catch(SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		
+	}
+	
+	public void contributorsMTBF() {
+		try {
+			
+			float tot_mtbf=0;
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_mtbf from(\r\n" + 
+					"SELECT author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type FROM \r\n" + 
+					"(SELECT project_id, author_id, min(created_at) as created_at, contr_type FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id) as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at \r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			tot_mtbf = rs.getFloat("avg_mtbf");
+			System.out.println("Author- Mean Time Before First Contribution (All Types) = "+tot_mtbf+" weeks");
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_mtbf from(\r\n" + 
+					"SELECT author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type FROM \r\n" + 
+					"(SELECT project_id, author_id, min(created_at) as created_at, contr_type FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id) as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"t4.contr_type = \"commits\"\r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			tot_mtbf = rs.getFloat("avg_mtbf");
+			System.out.println("Author- MTBF (commits) = "+tot_mtbf+" weeks");
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_mtbf from(\r\n" + 
+					"SELECT author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type FROM \r\n" + 
+					"(SELECT project_id, author_id, min(created_at) as created_at, contr_type FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id) as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"t4.contr_type = \"issues\"\r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			tot_mtbf = rs.getFloat("avg_mtbf");
+			System.out.println("Author- MTBF (issues) = "+tot_mtbf+" weeks");
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_mtbf from(\r\n" + 
+					"SELECT author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type FROM \r\n" + 
+					"(SELECT project_id, author_id, min(created_at) as created_at, contr_type FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id) as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"t4.contr_type = \"pull_requests\"\r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			tot_mtbf = rs.getFloat("avg_mtbf");
+			System.out.println("Author- MTBF (pull_requests) = "+tot_mtbf+" weeks");
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_mtbf from(\r\n" + 
+					"SELECT author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type FROM \r\n" + 
+					"(SELECT project_id, author_id, min(created_at) as created_at, contr_type FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id) as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"t4.contr_type = \"commit_comments\"\r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			tot_mtbf = rs.getFloat("avg_mtbf");
+			System.out.println("Author- MTBF (commit_comments) = "+tot_mtbf+" weeks");
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_mtbf from(\r\n" + 
+					"SELECT author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type FROM \r\n" + 
+					"(SELECT project_id, author_id, min(created_at) as created_at, contr_type FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id) as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"t4.contr_type = \"issue_comments\"\r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			tot_mtbf = rs.getFloat("avg_mtbf");
+			System.out.println("Author- MTBF (issue_comments) = "+tot_mtbf+" weeks");
+			
+			ps = con.prepareStatement("select avg(time_diff)/86400 as avg_mtbf from(\r\n" + 
+					"SELECT author_id, time_to_sec(timediff(t4.created_at,watchers.created_at)) as time_diff, t4.contr_type FROM \r\n" + 
+					"(SELECT project_id, author_id, min(created_at) as created_at, contr_type FROM github.prj_contr_ts_typ2\r\n" + 
+					"group by project_id, author_id) as t4\r\n" + 
+					"inner join watchers\r\n" + 
+					"on watchers.repo_id = t4.project_id and \r\n" + 
+					"watchers.user_id = t4.author_id and \r\n" + 
+					"watchers.created_at < t4.created_at and \r\n" + 
+					"t4.contr_type = \"pull_request_comments\"\r\n" + 
+					") as t7",ResultSet.TYPE_SCROLL_INSENSITIVE);
+			rs = Database.processQuery(ps);
+			rs.next();
+			tot_mtbf = rs.getFloat("avg_mtbf");
+			System.out.println("Author- MTBF (pull_request_comments) = "+tot_mtbf+" weeks");
+			
+			
+			
+		}catch(SQLException e1) {
+			e1.printStackTrace();
+		}
+	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -956,15 +1930,15 @@ public class ResearchQs {
 		
 // Get RQ1 Stats
 //		rq.rq1Stats();
-				
+		rq.contributorsMTBF();				
 		
 //  RQ2 Tasks
-		rq.confidenceCalc();
+//		rq.confidenceCalc();
 		
 		
 //  RQ3 Tasks
-		
-		
+//		rq.languageContribution();
+//		rq.languageMTBF();
 		
 		System.out.println("\n"+"----------End of Summary----------:");
 	    try {
