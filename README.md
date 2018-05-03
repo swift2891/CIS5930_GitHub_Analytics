@@ -16,6 +16,7 @@ Running the software:
 
 Description of Project directory: 
 Our project contains code in two .java files which can be found in the following directory paths.
+
 1.CIS5930_GitHub_Analytics\SE_Final_Project\src\com\cis5930\database\Database.java. This file contains a class that is used to achieve java - database connection.
 2.CIS5930_GitHub_Analytics\SE_Final_Project\src\com\cis5930\results\ResearchQs.java. This file contains the class which uses the class in previous file to set up database connection and interact with database and compute the Research questions.
 
